@@ -8,10 +8,13 @@ import java.util.Random;
  *
  */
 public class Main {
-
-  //マップの定義
-  static int map[][] = { { -10, 0, 0, 0, 10 } };
-  //TODO 壁はどうする？
+  /*
+   * マップの定義
+   * 何もないセル : 0
+   * ゴール : 報酬の値
+   * 壁 : #
+   */
+  static String map[][] = { { "-10", "w", "0", "0", "10" } };
 
   //マップのサイズ
   static final int MAP_ROW_SIZE = 1;
@@ -47,8 +50,10 @@ public class Main {
     //qTableの初期化
     for (int i = 0; i < MAP_ROW_SIZE; i++) {
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
-        int map_state = map[i][j];
-        qTable[i][j] = new QCell(map_state);
+        if(!map[i][j].equals("w")){
+          int map_state = Integer.parseInt(map[i][j]);
+          qTable[i][j] = new QCell(map_state);
+        }
       }
     }
     printQTable();
@@ -56,7 +61,7 @@ public class Main {
     for (int i = 0; i < 1500; i++) {
 
       //ゴールに辿り着いたらスタート地点に戻る
-      if(map[rowNum][columnNum] != 0){
+      if(map[rowNum][columnNum].equals("w")){
         rowNum = START_ROW_NUM;
         columnNum = START_COLUMN_NUM;
       }
@@ -221,7 +226,6 @@ public class Main {
         System.out.print("↓"+ df.format(qTable[i][j].getDownQValue()));
         System.out.print(" | ");
       }
-      System.out.println();
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
         System.out.print("-----------");
       }

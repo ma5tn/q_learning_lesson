@@ -8,6 +8,12 @@ public class QCell {
   private double leftQValue;
   private double rightQValue;
   private double downQValue;
+
+  /*
+   * セルのマップ上での状態
+   * 何もないセル : 0
+   * ゴール : 報酬の値
+   */
   private int mapState;
 
   //コンストラクタ
