@@ -42,9 +42,6 @@ public class Main {
   //ランダム
   private static Random rnd = new Random();
 
-  private static boolean goaledFlag = false;
-
-
   public static void main(String args[]){
 
     //qTableの初期化
@@ -56,26 +53,33 @@ public class Main {
     }
     printQTable();
 
-    for (int i = 0; i < 600; i++) {
-      if(goaledFlag){
-        goaledFlag = false;
+    for (int i = 0; i < 1500; i++) {
+
+      //ゴールに辿り着いたらスタート地点に戻る
+      if(map[rowNum][columnNum] != 0){
         rowNum = START_ROW_NUM;
         columnNum = START_COLUMN_NUM;
       }
-      QCell newQCell = qTable[rowNum][columnNum];
-      int canMoveBin = canMove(rowNum, columnNum);
-      calcFlagedQValue(newQCell, canMoveBin);
-      int selectedAction = selectGreedy(newQCell, canMoveBin);
-      calcFlagedQValue(qTable[rowNum][columnNum], selectedAction);
-      updateCurrentCoordinate(selectedAction);
-      if(map[rowNum][columnNum] != 0){
-        goaledFlag = true;
+
+      int selectedAction = 0;
+      //EPSILONの確率でランダム，(1-EPSILON)の確率でグリーディ法で行動を選択する
+      if(rnd.nextDouble() < EPSILON){
+        selectedAction = selectRandom();
+      }else{
+        selectedAction = selectGreedy();
       }
+
+      //選択された行動によりQ値を計算し更新
+      calcFlagedQValue(qTable[rowNum][columnNum], selectedAction);
+      //選択された行動により現在の座標を更新
+      updateCurrentCoordinate(selectedAction);
 
       printQTable();
     }
 
   }
+
+
 
 
   //Q値を計算する
@@ -100,7 +104,10 @@ public class Main {
   }
 
   //グリーディ法．最大のQ値となる行動を選択(最大のQ値となる行動が複数の場合はその中からランダム)
-  static int selectGreedy(QCell newQCell, int canMoveBin){
+  private static int selectGreedy(){
+    QCell newQCell = qTable[rowNum][columnNum];
+    int canMoveBin = canMove(rowNum, columnNum);
+    calcFlagedQValue(newQCell, canMoveBin);
     int maxQValueAction = 0;
     double maxQValue = newQCell.getMaxQValue();
     if(maxQValue == newQCell.getUpQValue()){
@@ -119,6 +126,16 @@ public class Main {
     int selected = 0;
     while(selected == 0){
       selected = selectCandidate & (int)Math.pow(2, rnd.nextInt(4));
+    }
+    return selected;
+  }
+
+  //ランダムに行動を選択，εの確率でグリーディ法に代わり使われる
+  private static int selectRandom() {
+    int canMoveBin = canMove(rowNum, columnNum);
+    int selected = 0;
+    while(selected == 0){
+      selected = canMoveBin & (int)Math.pow(2, rnd.nextInt(4));
     }
     return selected;
   }
