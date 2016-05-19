@@ -12,12 +12,12 @@ public class Main {
    * マップの定義
    * 何もないセル : 0
    * ゴール : 報酬の値
-   * 壁 : #
+   * 壁 : w
    */
-  static String map[][] = { { "-10", "w", "0", "0", "10" } };
+  static String map[][] = { { "-10", "0", "0", "0", "10" } ,{ "0", "0", "w", "0", "100" }};
 
   //マップのサイズ
-  static final int MAP_ROW_SIZE = 1;
+  static final int MAP_ROW_SIZE = 2;
   static final int MAP_COLUMN_SIZE = 5;
 
   //スタートの座標
@@ -61,7 +61,8 @@ public class Main {
     for (int i = 0; i < 1500; i++) {
 
       //ゴールに辿り着いたらスタート地点に戻る
-      if(map[rowNum][columnNum].equals("w")){
+      System.out.println(rowNum + ", "+columnNum+", "+map[rowNum][columnNum]);
+      if(!map[rowNum][columnNum].equals("0")){
         rowNum = START_ROW_NUM;
         columnNum = START_COLUMN_NUM;
       }
@@ -95,7 +96,7 @@ public class Main {
   static void calcFlagedQValue(QCell currentCell, int canMoveBin){
     String canMoveBinStr =String.format("%4s", Integer.toBinaryString(canMoveBin)).replace(' ', '0');
     if(canMoveBinStr.charAt(3) == '1'){
-      currentCell.setUpQValue(calcQValue(qTable[rowNum][columnNum].getUpQValue(), qTable[rowNum + 1][columnNum]));
+      currentCell.setUpQValue(calcQValue(qTable[rowNum][columnNum].getUpQValue(), qTable[rowNum - 1][columnNum]));
     }
     if(canMoveBinStr.charAt(2) == '1'){
       currentCell.setLeftQValue(calcQValue(qTable[rowNum][columnNum].getLeftQValue(), qTable[rowNum][columnNum - 1]));
@@ -145,10 +146,11 @@ public class Main {
     return selected;
   }
 
+  //選択された行動に合わせて現在の座標(rowNum, columnNum)を更新する
   private static void updateCurrentCoordinate(int selectedAction) {
     String selectedActionStr =String.format("%4s", Integer.toBinaryString(selectedAction)).replace(' ', '0');
     if(selectedActionStr.charAt(3) == '1'){
-      rowNum = rowNum + 1;
+      rowNum = rowNum - 1;
     }
     if(selectedActionStr.charAt(2) == '1'){
       columnNum = columnNum - 1;
@@ -163,32 +165,31 @@ public class Main {
 
   /*
    * 現在の座標から各方向に進めるか調べる関数
-   * とりあえずマップサイズ外じゃないかだけ判定(壁は考慮なし)
    */
   static int canMove(int rowNum, int columnNum) {
     int canMoveBin = 0;
 
     int nextRowNum = rowNum - 1;
     int nextColumnNum = columnNum;
-    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE) {
+    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE && !map[nextRowNum][nextColumnNum].equals("w")) {
       canMoveBin += 1;
     }
 
     nextRowNum = rowNum;
     nextColumnNum = columnNum - 1;
-    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE) {
+    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE && !map[nextRowNum][nextColumnNum].equals("w")) {
       canMoveBin += 2;
     }
 
     nextRowNum = rowNum;
     nextColumnNum = columnNum + 1;
-    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE) {
+    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE && !map[nextRowNum][nextColumnNum].equals("w")) {
       canMoveBin += 4;
     }
 
     nextRowNum = rowNum + 1;
     nextColumnNum = columnNum;
-    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE) {
+    if (0 <= nextRowNum && nextRowNum < MAP_ROW_SIZE && 0 <= nextColumnNum && nextColumnNum < MAP_COLUMN_SIZE && !map[nextRowNum][nextColumnNum].equals("w")) {
       canMoveBin += 8;
     }
 
@@ -197,40 +198,67 @@ public class Main {
 
   //qTableをいい感じにコンソールにプリントする関数
   static void printQTable(){
-    DecimalFormat df = new DecimalFormat(" 0.00");
     for (int i = 0; i < MAP_ROW_SIZE; i++) {
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
-        System.out.print("-----------");
+        System.out.print("-------------");
       }
       System.out.println();
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
-        System.out.print("↑"+ df.format(qTable[i][j].getUpQValue()));
+        if(qTable[i][j] == null){
+          System.out.print("########");
+        }else{
+          System.out.print("↑"+ formatValue(qTable[i][j].getUpQValue()));
+        }
         System.out.print(" | ");
       }
       System.out.println();
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
-        System.out.print("←"+ df.format(qTable[i][j].getLeftQValue()));
+        if(qTable[i][j] == null){
+          System.out.print("########");
+        }else{
+          System.out.print("←"+ formatValue(qTable[i][j].getLeftQValue()));
+        }
         System.out.print(" | ");
       }
       System.out.println();
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
-        System.out.print("→"+ df.format(qTable[i][j].getRightQValue()));
+        if(qTable[i][j] == null){
+          System.out.print("########");
+        }else{
+          System.out.print("→"+ formatValue(qTable[i][j].getRightQValue()));
+        }
         System.out.print(" | ");
       }
       System.out.println();
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
-        System.out.print("↓"+ df.format(qTable[i][j].getDownQValue()));
+        if(qTable[i][j] == null){
+          System.out.print("########");
+        }else{
+          System.out.print("↓"+ formatValue(qTable[i][j].getDownQValue()));
+        }
         System.out.print(" | ");
-      }
-      for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
-        System.out.print("-----------");
       }
       System.out.println();
     }
+    for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
+      System.out.print("-------------");
+    }
+    System.out.println();
+    System.out.println();
 
   }
+
+  private static String formatValue(double d){
+
+    DecimalFormat df = new DecimalFormat("##0.00;-##0.00");
+
+    String str = df.format(d);
+    String result = String.format("%7s", str);
+    return result;
+  }
+
 }
