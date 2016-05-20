@@ -14,10 +14,15 @@ public class Main {
    * ゴール : 報酬の値
    * 壁 : w
    */
-  static String map[][] = { { "-10", "0", "0", "0", "10" } ,{ "0", "0", "w", "0", "100" }};
+  static String map[][] = { { "10", "0", "0", "0", "-10" } ,
+                            { "0", "0", "w", "0", "0" } ,
+                            { "0", "0", "w", "0", "100" },
+                            { "0", "0", "w", "w", "w" },
+                            { "0", "0", "0", "0", "500" }
+  };
 
   //マップのサイズ
-  static final int MAP_ROW_SIZE = 2;
+  static final int MAP_ROW_SIZE = 5;
   static final int MAP_COLUMN_SIZE = 5;
 
   //スタートの座標
@@ -61,7 +66,6 @@ public class Main {
     for (int i = 0; i < 1500; i++) {
 
       //ゴールに辿り着いたらスタート地点に戻る
-      System.out.println(rowNum + ", "+columnNum+", "+map[rowNum][columnNum]);
       if(!map[rowNum][columnNum].equals("0")){
         rowNum = START_ROW_NUM;
         columnNum = START_COLUMN_NUM;
@@ -206,7 +210,9 @@ public class Main {
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
         if(qTable[i][j] == null){
-          System.out.print("########");
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print("#########");
         }else{
           System.out.print("↑"+ formatValue(qTable[i][j].getUpQValue()));
         }
@@ -216,7 +222,9 @@ public class Main {
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
         if(qTable[i][j] == null){
-          System.out.print("########");
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print("  GOAL   ");
         }else{
           System.out.print("←"+ formatValue(qTable[i][j].getLeftQValue()));
         }
@@ -226,7 +234,9 @@ public class Main {
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
         if(qTable[i][j] == null){
-          System.out.print("########");
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print(" "+formatValue(qTable[i][j].getMapState())+" ");
         }else{
           System.out.print("→"+ formatValue(qTable[i][j].getRightQValue()));
         }
@@ -236,7 +246,9 @@ public class Main {
       System.out.print(" | ");
       for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
         if(qTable[i][j] == null){
-          System.out.print("########");
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print("#########");
         }else{
           System.out.print("↓"+ formatValue(qTable[i][j].getDownQValue()));
         }
