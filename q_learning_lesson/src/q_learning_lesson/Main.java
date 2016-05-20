@@ -16,13 +16,12 @@ public class Main {
    */
   static String map[][] = { { "10", "0", "0", "0", "-10" } ,
                             { "0", "0", "0", "0", "0" } ,
-                            { "w", "0", "0", "0", "100" },
-                            { "0", "0", "0", "w", "w" },
+                            { "w", "0", "0", "w", "50" },
                             { "0", "0", "0", "0", "500" }
   };
 
   //マップのサイズ
-  static final int MAP_ROW_SIZE = 5;
+  static final int MAP_ROW_SIZE = 4;
   static final int MAP_COLUMN_SIZE = 5;
 
   //スタートの座標
@@ -63,7 +62,7 @@ public class Main {
     }
     printQTable();
 
-    for (int i = 0; i < 20000; i++) {
+    for (int i = 0; i < 15000; i++) {
 
       //ゴールに辿り着いたらスタート地点に戻る
       if(!map[rowNum][columnNum].equals("0")){
@@ -84,8 +83,16 @@ public class Main {
       //選択された行動により現在の座標を更新
       updateCurrentCoordinate(selectedAction);
 
-      printQTable();
-      System.out.flush();
+      if(i % 100 == 0){
+    	  try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+	      printQTable();
+	      System.out.flush();
+      }
     }
 
   }
