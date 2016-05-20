@@ -15,9 +15,9 @@ public class Main {
    * 壁 : w
    */
   static String map[][] = { { "10", "0", "0", "0", "-10" } ,
-                            { "0", "0", "w", "0", "0" } ,
-                            { "0", "0", "w", "0", "100" },
-                            { "0", "0", "w", "w", "w" },
+                            { "0", "0", "0", "0", "0" } ,
+                            { "w", "0", "0", "0", "100" },
+                            { "0", "0", "0", "w", "w" },
                             { "0", "0", "0", "0", "500" }
   };
 
@@ -63,7 +63,7 @@ public class Main {
     }
     printQTable();
 
-    for (int i = 0; i < 1500; i++) {
+    for (int i = 0; i < 20000; i++) {
 
       //ゴールに辿り着いたらスタート地点に戻る
       if(!map[rowNum][columnNum].equals("0")){
@@ -85,6 +85,7 @@ public class Main {
       updateCurrentCoordinate(selectedAction);
 
       printQTable();
+      System.out.flush();
     }
 
   }
