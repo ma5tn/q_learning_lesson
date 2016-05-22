@@ -2,6 +2,7 @@ package q_learning_lesson;
 
 import java.text.DecimalFormat;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  * @author Tanaka
@@ -14,19 +15,20 @@ public class Main {
    * ゴール : 報酬の値
    * 壁 : w
    */
-  static String map[][] = { { "10", "0", "0", "0", "-10" } ,
+  static String map[][] = { { "0", "0", "0", "0", "-10" } ,
                             { "0", "0", "0", "0", "0" } ,
-                            { "w", "0", "0", "w", "50" },
-                            { "0", "0", "0", "0", "500" }
+                            { "0", "0", "w", "0", "0" },
+                            { "100", "0", "w", "0", "0" },
+                            { "0", "0", "0", "500", "0" }
   };
 
   //マップのサイズ
-  static final int MAP_ROW_SIZE = 4;
-  static final int MAP_COLUMN_SIZE = 5;
+  static final int MAP_ROW_SIZE = map.length;
+  static final int MAP_COLUMN_SIZE = map[0].length;
 
   //スタートの座標
   static final int START_ROW_NUM = 0;
-  static final int START_COLUMN_NUM = 2;
+  static final int START_COLUMN_NUM = 0;
 
   //上，左，右，下 各行動の定数の割当
   static final int ACTION_MOVE_UP = 1;
@@ -62,8 +64,11 @@ public class Main {
     }
     printQTable();
 
-    for (int i = 0; i < 15000; i++) {
-
+    Scanner s = new Scanner(System.in);
+    boolean cont = true;
+    int i = 0;
+    while(cont == true) {
+    	i++;
       //ゴールに辿り着いたらスタート地点に戻る
       if(!map[rowNum][columnNum].equals("0")){
         rowNum = START_ROW_NUM;
@@ -84,15 +89,20 @@ public class Main {
       updateCurrentCoordinate(selectedAction);
 
       if(i % 100 == 0){
-    	  try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
-		}
-	      printQTable();
-	      System.out.flush();
+        try {
+          Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        printQTable(i);
+        System.out.flush();
       }
+
+      if(i % 2000 == 0){
+        System.out.println("続けますか? yes：1 no:0");
+        int flag = s.nextInt();
+        if(flag == 0) cont = false;
+       }
     }
 
   }
@@ -271,7 +281,70 @@ public class Main {
     System.out.println();
 
   }
+  //qTableをいい感じにコンソールにプリントする関数
+  static void printQTable(int k){
+	  System.out.println(k + "回目");
+    for (int i = 0; i < MAP_ROW_SIZE; i++) {
+      for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
+        System.out.print("-------------");
+      }
+      System.out.println();
+      System.out.print(" | ");
+      for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
+        if(qTable[i][j] == null){
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print("#########");
+        }else{
+          System.out.print("↑"+ formatValue(qTable[i][j].getUpQValue()));
+        }
+        System.out.print(" | ");
+      }
+      System.out.println();
+      System.out.print(" | ");
+      for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
+        if(qTable[i][j] == null){
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print("  GOAL   ");
+        }else{
+          System.out.print("←"+ formatValue(qTable[i][j].getLeftQValue()));
+        }
+        System.out.print(" | ");
+      }
+      System.out.println();
+      System.out.print(" | ");
+      for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
+        if(qTable[i][j] == null){
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print(" "+formatValue(qTable[i][j].getMapState())+" ");
+        }else{
+          System.out.print("→"+ formatValue(qTable[i][j].getRightQValue()));
+        }
+        System.out.print(" | ");
+      }
+      System.out.println();
+      System.out.print(" | ");
+      for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
+        if(qTable[i][j] == null){
+          System.out.print("#########");
+        }else if(qTable[i][j].getMapState() != 0){
+          System.out.print("#########");
+        }else{
+          System.out.print("↓"+ formatValue(qTable[i][j].getDownQValue()));
+        }
+        System.out.print(" | ");
+      }
+      System.out.println();
+    }
+    for (int j = 0; j < MAP_COLUMN_SIZE; j++) {
+      System.out.print("-------------");
+    }
+    System.out.println();
+    System.out.println();
 
+  }
   private static String formatValue(double d){
 
     DecimalFormat df = new DecimalFormat("##0.00;-##0.00");
